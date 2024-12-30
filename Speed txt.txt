@@ -1,0 +1,81 @@
+-- سكربت لتعديل سرعة اللاعب في لعبة Brookhaven باستخدام Delta
+
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+local speed = 16 -- السرعة الافتراضية
+
+-- إنشاء واجهة المستخدم (GUI)
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player.PlayerGui
+
+-- إنشاء الخانة لادخال السرعة
+local speedBox = Instance.new("TextBox")
+speedBox.Parent = screenGui
+speedBox.Size = UDim2.new(0, 200, 0, 50)
+speedBox.Position = UDim2.new(0.5, -100, 0.5, -25)
+speedBox.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+speedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedBox.Text = tostring(speed)
+speedBox.TextScaled = true
+speedBox.BorderSizePixel = 2
+speedBox.BorderColor3 = Color3.fromRGB(255, 255, 255)
+
+-- إنشاء زر تنفيذ السرعة
+local executeButton = Instance.new("TextButton")
+executeButton.Parent = screenGui
+executeButton.Size = UDim2.new(0, 200, 0, 50)
+executeButton.Position = UDim2.new(0.5, -100, 0.5, 35)
+executeButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+executeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+executeButton.Text = "تنفيذ"
+executeButton.TextScaled = true
+executeButton.BorderSizePixel = 2
+executeButton.BorderColor3 = Color3.fromRGB(255, 255, 255)
+
+-- وظيفة تغيير السرعة عند الضغط على الزر
+executeButton.MouseButton1Click:Connect(function()
+    local enteredSpeed = tonumber(speedBox.Text)
+    if enteredSpeed and enteredSpeed > 0 then
+        speed = enteredSpeed
+        player.Character.Humanoid.WalkSpeed = speed
+    else
+        speedBox.Text = "أدخل قيمة صحيحة"
+    end
+end)
+
+-- إنشاء النص "DRACO" في الزاوية العليا
+local nameLabel = Instance.new("TextLabel")
+nameLabel.Parent = screenGui
+nameLabel.Size = UDim2.new(0, 100, 0, 50)
+nameLabel.Position = UDim2.new(0, 10, 0, 10)
+nameLabel.BackgroundTransparency = 1
+nameLabel.Text = "DRACO"
+nameLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+nameLabel.TextSize = 24
+nameLabel.TextScaled = true
+
+-- تمكين تحريك الخانة باستخدام الماوس
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+speedBox.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = speedBox.Position
+        input.Changed:Connect(function()
+            if dragging then
+                local delta = input.Position - dragStart
+                speedBox.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            end
+        end)
+    end
+end)
+
+speedBox.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
